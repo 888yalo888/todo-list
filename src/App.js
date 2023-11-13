@@ -5,6 +5,8 @@ import { v4 as uuid } from 'uuid';
 function App() {
     const [title, setTitle] = useState('');
     const [items, setItems] = useState([]);
+    const [editableItemId, setEditableItemId] = useState(null);
+    const [editableTaskName, setEditableTaskName] = useState();
 
     const getData = useCallback(async () => {
         const response = await fetch(
@@ -15,10 +17,19 @@ function App() {
         );
 
         const data = await response.json();
+
         console.log('new todo', response, data);
 
         setItems(data);
     }, []);
+
+    const editHandler = (id, title) => {
+        return () => {
+            setEditableItemId(id);
+
+            setEditableTaskName(title);
+        };
+    };
 
     useEffect(() => {
         getData();
@@ -33,14 +44,11 @@ function App() {
 
         const newItem = { id: uuid(), title };
 
-        await fetch(
-            'http://localhost:8001/api/todolist/add-new-task',
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newItem),
-            }
-        );
+        await fetch('http://localhost:8001/api/todolist/add-new-task', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newItem),
+        });
 
         await getData();
 
@@ -48,25 +56,47 @@ function App() {
     };
 
     const deleteHandler = async (id) => {
-        await fetch(
-            'http://localhost:8001/api/todolist/delete-item',
-            {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id }),
-            }
-        );
-      
-      await getData();
+        await fetch(`http://localhost:8001/api/todolist/delete-item/${id}`, {
+            method: 'DELETE',
+        });
+
+        await getData();
     };
 
-    useEffect(() => {
-        console.log('Component was mounted');
-    }, []);
+    const changeHandler = (event) => {
+        setEditableTaskName(event.target.value);
+    };
 
-    useEffect(() => {
-        console.log('Component was updated title', items);
-    }, [items]);
+    const saveHandler = (id) => {
+        return async () => {
+            const newItem = { title: editableTaskName };
+
+            await fetch(
+                `http://localhost:8001/api/todolist/change-existing-task/${id}`,
+                {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newItem),
+                }
+            );
+
+            await getData();
+
+            setEditableItemId(null);
+        };
+    };
+
+    const cancelHandler = () => {
+        setEditableItemId(null);
+    };
+
+    // useEffect(() => {
+    //     console.log('Component was mounted');
+    // }, []);
+
+    // useEffect(() => {
+    //     console.log('Component was updated title', items);
+    // }, [items]);
 
     return (
         <div className="App">
@@ -79,15 +109,43 @@ function App() {
 
             <ul>
                 {items.map((item) => {
+                    const isEditing = editableItemId === item.id;
+
                     return (
                         <li key={item.id}>
-                            {item.title}
+                            {isEditing ? (
+                                <>
+                                    <input
+                                        value={editableTaskName}
+                                        onChange={changeHandler}
+                                    />
+
+                                    <button onClick={saveHandler(item.id)}>
+                                        save
+                                    </button>
+
+                                    <button onClick={cancelHandler}>
+                                        cancel
+                                    </button>
+                                </>
+                            ) : (
+                                item.title
+                            )}
+
+                            {isEditing ? null : (
+                                <button
+                                    onClick={editHandler(item.id, item.title)}
+                                >
+                                    ✎
+                                </button>
+                            )}
+
                             <button
                                 onClick={() => {
                                     deleteHandler(item.id);
                                 }}
                             >
-                                Delete
+                                X
                             </button>
                         </li>
                     );
