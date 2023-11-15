@@ -1,94 +1,111 @@
+import axios from 'axios';
 import './App.css';
 import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
+import Task from './component/Task';
 
 function App() {
     const [title, setTitle] = useState('');
     const [items, setItems] = useState([]);
-    const [editableItemId, setEditableItemId] = useState(null);
-    const [editableTaskName, setEditableTaskName] = useState();
 
-    const getData = useCallback(async () => {
-        const response = await fetch(
-            'http://localhost:8001/api/todolist/get-all-items',
-            {
-                method: 'GET',
-            }
-        );
+    // ===================   API
 
-        const data = await response.json();
+    // 1 version
 
-        console.log('new todo', response, data);
+    // const getAllItems = useCallback(async () => {
+    //     const response = await fetch(
+    //         'http://localhost:8001/api/todolist/get-all-items',
+    //         {
+    //             method: 'GET',
+    //         }
+    //     );
 
-        setItems(data);
-    }, []);
+    //     const data = await response.json();
 
-    const editHandler = (id, title) => {
-        return () => {
-            setEditableItemId(id);
+    //     console.log('new todo', response, data);
 
-            setEditableTaskName(title);
-        };
-    };
+    //     setItems(data);
+    // }, []);
 
-    useEffect(() => {
-        getData();
-    }, []);
+    // const createTaskHandler = async (event) => {
+    //     event.preventDefault();
+
+    //     const newItem = { id: uuid(), title };
+
+    //     await fetch('http://localhost:8001/api/todolist/add-new-task', {
+    //         method: 'POST',
+    //         headers: { 'Content-Type': 'application/json' },
+    //         body: JSON.stringify(newItem),
+    //     });
+
+    //     await getAllItems();
+
+    //     setTitle('');
+    // };
+
+    // const deleteHandler = async (id) => {
+    //     await fetch(`http://localhost:8001/api/todolist/delete-item/${id}`, {
+    //         method: 'DELETE',
+    //     });
+
+    //     await getAllTasksItems();
+    // };
+
+    // const updateHandler = (id) => {
+    //     return async () => {
+    //         const newItem = { title: editableTaskName };
+
+    //         await fetch(
+    //             `http://localhost:8001/api/todolist/change-existing-task/${id}`,
+    //             {
+    //                 method: 'PUT',
+    //                 headers: { 'Content-Type': 'application/json' },
+    //                 body: JSON.stringify(newItem),
+    //             }
+    //         );
+
+    //         await getAllTasksItems();
+
+    //         setEditableItemId(null);
+    //     };
+    // };
+
+    // 2 version
 
     const newItemTitleChange = ({ target: { value } }) => {
         setTitle(value);
     };
 
-    const submitHandler = async (event) => {
+    const getAllTasksItems = useCallback(async () => {
+        const response = await axios.get(
+            'http://localhost:8001/api/todolist/get-all-items'
+        );
+
+        console.log('new todo', response.data);
+
+        setItems(response.data);
+    }, []);
+
+    const createTaskHandler = async (event) => {
         event.preventDefault();
 
         const newItem = { id: uuid(), title };
 
-        await fetch('http://localhost:8001/api/todolist/add-new-task', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newItem),
-        });
+        await axios.post(
+            'http://localhost:8001/api/todolist/add-new-task',
+            newItem
+        );
 
-        await getData();
+        await getAllTasksItems();
 
         setTitle('');
     };
 
-    const deleteHandler = async (id) => {
-        await fetch(`http://localhost:8001/api/todolist/delete-item/${id}`, {
-            method: 'DELETE',
-        });
+    //  ============= Handler functions
 
-        await getData();
-    };
-
-    const changeHandler = (event) => {
-        setEditableTaskName(event.target.value);
-    };
-
-    const saveHandler = (id) => {
-        return async () => {
-            const newItem = { title: editableTaskName };
-
-            await fetch(
-                `http://localhost:8001/api/todolist/change-existing-task/${id}`,
-                {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newItem),
-                }
-            );
-
-            await getData();
-
-            setEditableItemId(null);
-        };
-    };
-
-    const cancelHandler = () => {
-        setEditableItemId(null);
-    };
+    useEffect(() => {
+        getAllTasksItems();
+    }, []);
 
     // useEffect(() => {
     //     console.log('Component was mounted');
@@ -102,52 +119,19 @@ function App() {
         <div className="App">
             <form>
                 <input value={title} onChange={newItemTitleChange} />
-                <button type="submit" onClick={submitHandler}>
+                <button type="submit" onClick={createTaskHandler}>
                     Add
                 </button>
             </form>
 
             <ul>
                 {items.map((item) => {
-                    const isEditing = editableItemId === item.id;
-
                     return (
-                        <li key={item.id}>
-                            {isEditing ? (
-                                <>
-                                    <input
-                                        value={editableTaskName}
-                                        onChange={changeHandler}
-                                    />
-
-                                    <button onClick={saveHandler(item.id)}>
-                                        save
-                                    </button>
-
-                                    <button onClick={cancelHandler}>
-                                        cancel
-                                    </button>
-                                </>
-                            ) : (
-                                item.title
-                            )}
-
-                            {isEditing ? null : (
-                                <button
-                                    onClick={editHandler(item.id, item.title)}
-                                >
-                                    ✎
-                                </button>
-                            )}
-
-                            <button
-                                onClick={() => {
-                                    deleteHandler(item.id);
-                                }}
-                            >
-                                X
-                            </button>
-                        </li>
+                        <Task
+                            key={item.id}
+                            {...item}
+                            getAllTasksItems={getAllTasksItems}
+                        />
                     );
                 })}
             </ul>
