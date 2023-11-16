@@ -1,5 +1,5 @@
 import axios from 'axios';
-import './App.css';
+import './App.scss';
 import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import Task from './component/Task';
@@ -117,24 +117,26 @@ function App() {
 
     return (
         <div className="App">
-            <form>
-                <input value={title} onChange={newItemTitleChange} />
-                <button type="submit" onClick={createTaskHandler}>
-                    Add
-                </button>
-            </form>
+            <div className="todolist">
+                <form>
+                    <input className='input' value={title} onChange={newItemTitleChange} />
+                    <button type="submit" onClick={createTaskHandler}>
+                        Add
+                    </button>
+                </form>
 
-            <ul>
-                {items.map((item) => {
-                    return (
-                        <Task
-                            key={item.id}
-                            {...item}
-                            getAllTasksItems={getAllTasksItems}
-                        />
-                    );
-                })}
-            </ul>
+                <ul className="tasks">
+                    {items.map((item) => {
+                        return (
+                            <Task
+                                key={item.id}
+                                {...item}
+                                getAllTasksItems={getAllTasksItems}
+                            />
+                        );
+                    })}
+                </ul>
+            </div>
         </div>
     );
 }

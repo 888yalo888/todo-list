@@ -10,6 +10,10 @@ const TODO_LIST_MOCKS = [
         id: '2',
         title: 'Do the dishes',
     },
+    {
+        id: '3',
+        title: 'Walk on the street',
+    },
 ];
 
 const app = express();

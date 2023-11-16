@@ -44,7 +44,7 @@ const Task = (props) => {
     };
 
     return (
-        <li>
+        <li className='task'>
             {isEditing ? (
                 <form>
                     <input value={editableTaskName} onChange={changeHandler} />
