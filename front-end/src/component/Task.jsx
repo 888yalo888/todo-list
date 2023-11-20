@@ -1,20 +1,21 @@
 import axios from 'axios';
 import { useState } from 'react';
+import { CloseIcon, DeleteIcon, EditIcon, SaveIcon } from './icons/icons';
 
 const Task = (props) => {
-    const { id, title, getAllTasksItems } = props;
+    const { id, title, refreshItems } = props;
     const [isEditing, setIsEditing] = useState(false);
-    const [editableTaskName, setEditableTaskName] = useState();
+    const [editableTaskName, setEditableTaskName] = useState(title);
 
     const deleteHandler = async () => {
         await axios.delete(
             `http://localhost:8001/api/todolist/delete-item/${id}`
         );
 
-        await getAllTasksItems();
+        await refreshItems();
     };
 
-    const updateHandler = async (event) => {
+    const saveHandler = async (event) => {
         event.preventDefault();
 
         const newItem = { title: editableTaskName };
@@ -24,15 +25,13 @@ const Task = (props) => {
             newItem
         );
 
-        await getAllTasksItems();
+        await refreshItems();
 
         setIsEditing(null);
     };
 
     const editHandler = () => {
-        setIsEditing(id);
-
-        setEditableTaskName(title);
+        setIsEditing(true);
     };
 
     const changeHandler = (event) => {
@@ -44,29 +43,39 @@ const Task = (props) => {
     };
 
     return (
-        <li className='task'>
+        <li className="task">
             {isEditing ? (
-                <form>
-                    <input value={editableTaskName} onChange={changeHandler} />
+                <form className="editTaskForm">
+                    <input
+                        value={editableTaskName}
+                        onChange={changeHandler}
+                        onBlur={saveHandler}
+                    />
 
-                    <button type="submit" onClick={updateHandler}>
-                        save
+                    <button
+                        className="icon"
+                        type="submit"
+                        onClick={saveHandler}
+                    >
+                        <SaveIcon />
                     </button>
 
-                    <button onClick={cancelHandler}>cancel</button>
+                    <button className="icon" onClick={cancelHandler}>
+                        <CloseIcon />
+                    </button>
                 </form>
             ) : (
-                title
+                <p className="title">{title}</p>
             )}
 
             {isEditing ? null : (
-                <button onClick={editHandler}>✎</button>
+                <button className="icon" onClick={editHandler}>
+                    <EditIcon />
+                </button>
             )}
 
-            <button
-                onClick={deleteHandler}
-            >
-                X
+            <button className="icon" onClick={deleteHandler}>
+                <DeleteIcon />
             </button>
         </li>
     );

@@ -5,7 +5,7 @@ import { v4 as uuid } from 'uuid';
 import Task from './component/Task';
 
 function App() {
-    const [title, setTitle] = useState('');
+    const [newTaskTitle, setNewTaskTitle] = useState('');
     const [items, setItems] = useState([]);
 
     // ===================   API
@@ -30,7 +30,7 @@ function App() {
     // const createTaskHandler = async (event) => {
     //     event.preventDefault();
 
-    //     const newItem = { id: uuid(), title };
+    //     const newItem = { id: uuid(), newTaskTitle };
 
     //     await fetch('http://localhost:8001/api/todolist/add-new-task', {
     //         method: 'POST',
@@ -40,7 +40,7 @@ function App() {
 
     //     await getAllItems();
 
-    //     setTitle('');
+    //     setNewTaskTitle('');
     // };
 
     // const deleteHandler = async (id) => {
@@ -53,7 +53,7 @@ function App() {
 
     // const updateHandler = (id) => {
     //     return async () => {
-    //         const newItem = { title: editableTaskName };
+    //         const newItem = { newTaskTitle: editableTaskName };
 
     //         await fetch(
     //             `http://localhost:8001/api/todolist/change-existing-task/${id}`,
@@ -73,7 +73,7 @@ function App() {
     // 2 version
 
     const newItemTitleChange = ({ target: { value } }) => {
-        setTitle(value);
+        setNewTaskTitle(value);
     };
 
     const getAllTasksItems = useCallback(async () => {
@@ -89,7 +89,7 @@ function App() {
     const createTaskHandler = async (event) => {
         event.preventDefault();
 
-        const newItem = { id: uuid(), title };
+        const newItem = { id: uuid(), newTaskTitle };
 
         await axios.post(
             'http://localhost:8001/api/todolist/add-new-task',
@@ -98,7 +98,7 @@ function App() {
 
         await getAllTasksItems();
 
-        setTitle('');
+        setNewTaskTitle('');
     };
 
     //  ============= Handler functions
@@ -112,18 +112,26 @@ function App() {
     // }, []);
 
     // useEffect(() => {
-    //     console.log('Component was updated title', items);
+    //     console.log('Component was updated newTaskTitle', items);
     // }, [items]);
 
     return (
         <div className="App">
             <div className="todolist">
-                <form>
-                    <input className='input' value={title} onChange={newItemTitleChange} />
+                <form className='addTaksForm'>
+                    <input
+                        className="input"
+                        value={newTaskTitle}
+                        onChange={newItemTitleChange}
+                        placeholder='Create a new task...'
+                    />
+
                     <button type="submit" onClick={createTaskHandler}>
                         Add
                     </button>
                 </form>
+
+                <br />
 
                 <ul className="tasks">
                     {items.map((item) => {
@@ -131,7 +139,7 @@ function App() {
                             <Task
                                 key={item.id}
                                 {...item}
-                                getAllTasksItems={getAllTasksItems}
+                                refreshItems={getAllTasksItems}
                             />
                         );
                     })}
