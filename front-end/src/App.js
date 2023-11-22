@@ -2,145 +2,149 @@ import axios from 'axios';
 import './App.scss';
 import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
-import Task from './component/Task';
+import {
+    CloseIcon,
+    DeleteIcon,
+    EditIcon,
+    SaveIcon,
+} from './component/icons/icons';
 
-function App() {
-    const [newTaskTitle, setNewTaskTitle] = useState('');
-    const [items, setItems] = useState([]);
+//Component
 
-    // ===================   API
+const Item = (props) => {
+    const { id, title, getItems } = props;
+    const [isEditable, setIsEditable] = useState(false);
+    const [newTitle, setNewTitle] = useState(title);
 
-    // 1 version
+    const deleteHandler = async () => {
+        await axios.delete(
+            `http://localhost:8001/api/todolist/delete-item/${id}`
+        );
 
-    // const getAllItems = useCallback(async () => {
-    //     const response = await fetch(
-    //         'http://localhost:8001/api/todolist/get-all-items',
-    //         {
-    //             method: 'GET',
-    //         }
-    //     );
-
-    //     const data = await response.json();
-
-    //     console.log('new todo', response, data);
-
-    //     setItems(data);
-    // }, []);
-
-    // const createTaskHandler = async (event) => {
-    //     event.preventDefault();
-
-    //     const newItem = { id: uuid(), newTaskTitle };
-
-    //     await fetch('http://localhost:8001/api/todolist/add-new-task', {
-    //         method: 'POST',
-    //         headers: { 'Content-Type': 'application/json' },
-    //         body: JSON.stringify(newItem),
-    //     });
-
-    //     await getAllItems();
-
-    //     setNewTaskTitle('');
-    // };
-
-    // const deleteHandler = async (id) => {
-    //     await fetch(`http://localhost:8001/api/todolist/delete-item/${id}`, {
-    //         method: 'DELETE',
-    //     });
-
-    //     await getAllTasksItems();
-    // };
-
-    // const updateHandler = (id) => {
-    //     return async () => {
-    //         const newItem = { newTaskTitle: editableTaskName };
-
-    //         await fetch(
-    //             `http://localhost:8001/api/todolist/change-existing-task/${id}`,
-    //             {
-    //                 method: 'PUT',
-    //                 headers: { 'Content-Type': 'application/json' },
-    //                 body: JSON.stringify(newItem),
-    //             }
-    //         );
-
-    //         await getAllTasksItems();
-
-    //         setEditableItemId(null);
-    //     };
-    // };
-
-    // 2 version
-
-    const newItemTitleChange = ({ target: { value } }) => {
-        setNewTaskTitle(value);
+        await getItems();
     };
 
-    const getAllTasksItems = useCallback(async () => {
+    const editHandler = () => {
+        setIsEditable(true);
+    };
+
+    const saveHandler = async () => {
+        const body = { title: newTitle };
+
+        await axios.put(
+            `http://localhost:8001/api/todolist/change-existing-task/${id}`,
+            body
+        );
+
+        await getItems();
+    };
+
+    const cancelHandler = () => {
+        setIsEditable(false);
+    };
+
+    return (
+        <li className="task">
+            {isEditable ? (
+                <form className="editTaskForm">
+                    <input
+                        value={newTitle}
+                        onChange={(event) => {
+                            setNewTitle(event.target.value);
+                        }}
+                    ></input>
+
+                    <button
+                        className="icon"
+                        type="submit"
+                        onClick={saveHandler}
+                    >
+                        <SaveIcon />
+                    </button>
+
+                    <button className="icon" onClick={cancelHandler}>
+                        <CloseIcon />
+                    </button>
+                </form>
+            ) : (
+                title
+            )}
+
+            <button className="icon" onClick={deleteHandler}>
+                <DeleteIcon />
+            </button>
+
+            <button className="icon" onClick={editHandler}>
+                <EditIcon />
+            </button>
+        </li>
+    );
+};
+
+//App
+
+function App() {
+    const [items, setItems] = useState([]);
+    const [newItemTitle, setNewItemTitle] = useState('');
+
+    // Server request
+    const getItems = async () => {
         const response = await axios.get(
             'http://localhost:8001/api/todolist/get-all-items'
         );
 
-        console.log('new todo', response.data);
+        //console.log(response);
 
         setItems(response.data);
+    };
+
+    useEffect(() => {
+        getItems();
     }, []);
 
-    const createTaskHandler = async (event) => {
+    //console.log(newItemTitle);
+
+    //Handlers
+
+    const addHandler = async (event) => {
         event.preventDefault();
 
-        const newItem = { id: uuid(), newTaskTitle };
+        const newItem = {
+            title: newItemTitle,
+            id: uuid(),
+        };
 
         await axios.post(
             'http://localhost:8001/api/todolist/add-new-task',
             newItem
         );
 
-        await getAllTasksItems();
+        console.log(newItem);
 
-        setNewTaskTitle('');
+        await getItems();
     };
-
-    //  ============= Handler functions
-
-    useEffect(() => {
-        getAllTasksItems();
-    }, []);
-
-    // useEffect(() => {
-    //     console.log('Component was mounted');
-    // }, []);
-
-    // useEffect(() => {
-    //     console.log('Component was updated newTaskTitle', items);
-    // }, [items]);
 
     return (
         <div className="App">
             <div className="todolist">
-                <form className='addTaksForm'>
+                <form className="addTaskForm">
                     <input
                         className="input"
-                        value={newTaskTitle}
-                        onChange={newItemTitleChange}
-                        placeholder='Create a new task...'
-                    />
+                        value={newItemTitle}
+                        onChange={(event) => {
+                            setNewItemTitle(event.target.value);
+                        }}
+                    ></input>
 
-                    <button type="submit" onClick={createTaskHandler}>
+                    <button type="submit" onClick={addHandler}>
                         Add
                     </button>
                 </form>
 
-                <br />
-
                 <ul className="tasks">
                     {items.map((item) => {
                         return (
-                            <Task
-                                key={item.id}
-                                {...item}
-                                refreshItems={getAllTasksItems}
-                            />
+                            <Item key={item.id} {...item} getItems={getItems} />
                         );
                     })}
                 </ul>
