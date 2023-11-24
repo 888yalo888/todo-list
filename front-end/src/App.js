@@ -12,13 +12,13 @@ import {
 //Component
 
 const Item = (props) => {
-    const { id, title, getItems } = props;
+    const { _id, title, getItems } = props;
     const [isEditable, setIsEditable] = useState(false);
     const [newTitle, setNewTitle] = useState(title);
 
     const deleteHandler = async () => {
         await axios.delete(
-            `http://localhost:8001/api/todolist/delete-item/${id}`
+            `http://localhost:8001/api/todolist/delete-item/${_id}`
         );
 
         await getItems();
@@ -28,13 +28,16 @@ const Item = (props) => {
         setIsEditable(true);
     };
 
-    const saveHandler = async () => {
+    const saveHandler = async (event) => {
+        event.preventDefault();
         const body = { title: newTitle };
 
         await axios.put(
-            `http://localhost:8001/api/todolist/change-existing-task/${id}`,
+            `http://localhost:8001/api/todolist/change-existing-task/${_id}`,
             body
         );
+
+        setIsEditable(false);
 
         await getItems();
     };
@@ -111,7 +114,6 @@ function App() {
 
         const newItem = {
             title: newItemTitle,
-            id: uuid(),
         };
 
         await axios.post(
@@ -122,6 +124,8 @@ function App() {
         console.log(newItem);
 
         await getItems();
+
+        setNewItemTitle('');
     };
 
     return (
@@ -144,7 +148,7 @@ function App() {
                 <ul className="tasks">
                     {items.map((item) => {
                         return (
-                            <Item key={item.id} {...item} getItems={getItems} />
+                            <Item key={item._id} {...item} getItems={getItems} />
                         );
                     })}
                 </ul>

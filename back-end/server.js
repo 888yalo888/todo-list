@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import { Task } from './db.js';
 
 const TODO_LIST_MOCKS = [
     {
@@ -21,48 +22,41 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.get('/api/todolist/get-all-items', (_request, response) => {
-    response.send(TODO_LIST_MOCKS);
+app.get('/api/todolist/get-all-items', async (_req, res) => {
+    const tasks = await Task.find();
+
+    res.send(tasks);
 });
 
-app.post('/api/todolist/add-new-task', (request, response) => {
-    console.log('/api/todolist/add-new-task POST', request.body);
+app.post('/api/todolist/add-new-task', async (req, res) => {
+    const newItem = req.body;
 
-    TODO_LIST_MOCKS.push(request.body);
+    await Task.create(newItem);
 
-    response.send();
+    res.end();
 });
 
-app.delete('/api/todolist/delete-item/:id', (request, response) => {
-    console.log('/api/todolist/delete-item DELETE', request.params.id);
+app.delete('/api/todolist/delete-item/:id', async (req, res) => {
+    const idItem = req.params.id;
 
-    const index = TODO_LIST_MOCKS.findIndex((task) => {
-        return task.id === request.params.id;
-    });
+    await Task.findByIdAndDelete(idItem);
 
-    if (index !== -1) {
-        TODO_LIST_MOCKS.splice(index, 1);
-
-        response.send('Ok');
-    } else {
-        response.status(400).send('Error');
-    }
+    res.end();
 });
 
-app.put('/api/todolist/change-existing-task/:id', (request, response) => {
-    console.log('/api/todolist/change-existing-task PUT', request.params.id);
+app.put('/api/todolist/change-existing-task/:id', async (req, res) => {
+    const newTitleId = req.params.id;
+    const newTitle = req.body.title;
 
-    const index = TODO_LIST_MOCKS.findIndex((task) => {
-        return task.id === request.params.id;
-    });
+    await Task.findByIdAndUpdate(newTitleId, { title: newTitle });
 
-    if (index !== -1) {
-        TODO_LIST_MOCKS[index].title = request.body.title
+    // const neededTaskIndex = TODO_LIST_MOCKS.findIndex(
+    //     (item) => item.id === newTitleId
+    // );
 
-        response.send('Ok');
-    } else {
-        response.status(400).send('Error');
-    }
+    // TODO_LIST_MOCKS[neededTaskIndex].title = newTitle;
+
+    res.end();
 });
 
 app.listen(8001, () => {
