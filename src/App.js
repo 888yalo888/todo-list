@@ -18,7 +18,7 @@ const Item = (props) => {
 
     const deleteHandler = async () => {
         await axios.delete(
-            `http://localhost:8001/api/todolist/delete-item/${_id}`
+            `https://todolis-back-end-3.onrender.com/api/todolist/delete-item/${_id}`
         );
 
         await getItems();
@@ -33,7 +33,7 @@ const Item = (props) => {
         const body = { title: newTitle };
 
         await axios.put(
-            `http://localhost:8001/api/todolist/change-existing-task/${_id}`,
+            `https://todolis-back-end-3.onrender.com/api/todolist/change-existing-task/${_id}`,
             body
         );
 
@@ -93,7 +93,7 @@ function App() {
     // Server request
     const getItems = async () => {
         const response = await axios.get(
-            'http://localhost:8001/api/todolist/get-all-items'
+            'https://todolis-back-end-3.onrender.com/api/todolist/get-all-items'
         );
 
         //console.log(response);
@@ -117,7 +117,7 @@ function App() {
         };
 
         await axios.post(
-            'http://localhost:8001/api/todolist/add-new-task',
+            'https://todolis-back-end-3.onrender.com/api/todolist/add-new-task',
             newItem
         );
 
@@ -148,7 +148,11 @@ function App() {
                 <ul className="tasks">
                     {items.map((item) => {
                         return (
-                            <Item key={item._id} {...item} getItems={getItems} />
+                            <Item
+                                key={item._id}
+                                {...item}
+                                getItems={getItems}
+                            />
                         );
                     })}
                 </ul>
