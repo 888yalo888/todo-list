@@ -10,7 +10,7 @@ import {
 
 // Component
 
-console.log('process.env', process.env);
+console.log('process.env', process.env, axios.defaults);
 
 const Item = (props) => {
     const { _id, title, getItems } = props;
@@ -18,9 +18,7 @@ const Item = (props) => {
     const [newTitle, setNewTitle] = useState(title);
 
     const deleteHandler = async () => {
-        await axios.delete(
-            `https://todolis-back-end-3.onrender.com/api/todolist/delete-item/${_id}`
-        );
+        await axios.delete(`api/todolist/delete-item/${_id}`);
 
         await getItems();
     };
@@ -33,10 +31,7 @@ const Item = (props) => {
         event.preventDefault();
         const body = { title: newTitle };
 
-        await axios.put(
-            `https://todolis-back-end-3.onrender.com/api/todolist/change-existing-task/${_id}`,
-            body
-        );
+        await axios.put(`api/todolist/change-existing-task/${_id}`, body);
 
         setIsEditable(false);
 
@@ -93,9 +88,7 @@ function App() {
 
     // Server request
     const getItems = async () => {
-        const response = await axios.get(
-            'https://todolis-back-end-3.onrender.com/api/todolist/get-all-items'
-        );
+        const response = await axios.get(`api/todolist/get-all-items`);
 
         //console.log(response);
 
@@ -117,10 +110,7 @@ function App() {
             title: newItemTitle,
         };
 
-        await axios.post(
-            'https://todolis-back-end-3.onrender.com/api/todolist/add-new-task',
-            newItem
-        );
+        await axios.post(`api/todolist/add-new-task`, newItem);
 
         console.log(newItem);
 
