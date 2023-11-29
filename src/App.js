@@ -1,7 +1,6 @@
 import axios from 'axios';
 import './App.scss';
-import { useCallback, useEffect, useState } from 'react';
-import { v4 as uuid } from 'uuid';
+import { useEffect, useState } from 'react';
 import {
     CloseIcon,
     DeleteIcon,
@@ -9,7 +8,9 @@ import {
     SaveIcon,
 } from './component/icons/icons';
 
-//Component
+// Component
+
+console.log('process.env', process.env);
 
 const Item = (props) => {
     const { _id, title, getItems } = props;
