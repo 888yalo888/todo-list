@@ -1,12 +1,14 @@
 import axios from 'axios';
 import './App.scss';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
     CloseIcon,
     DeleteIcon,
     EditIcon,
     SaveIcon,
 } from './component/icons/icons';
+
+let tokenStored = null;
 
 // Component
 
@@ -85,19 +87,26 @@ const Item = (props) => {
 function App() {
     const [items, setItems] = useState([]);
     const [newItemTitle, setNewItemTitle] = useState('');
+    const [newEmail, setNewEmail] = useState('olga@gmail.com');
+    const [newPassword, setNewPassword] = useState('12345');
+    const [logged, setLogged] = useState(false);
 
     // Server request
-    const getItems = async () => {
-        const response = await axios.get(`api/todolist/get-all-items`);
-
-        //console.log(response);
+    const getItems = useCallback(async () => {
+        const response = await axios.get(`api/todolist/get-all-items`, {
+            headers: {
+                token: tokenStored,
+            },
+        });
 
         setItems(response.data);
-    };
+    }, []);
 
     useEffect(() => {
-        getItems();
-    }, []);
+        if (logged) {
+            getItems();
+        }
+    }, [logged, getItems]);
 
     //console.log(newItemTitle);
 
@@ -110,7 +119,11 @@ function App() {
             title: newItemTitle,
         };
 
-        await axios.post(`api/todolist/add-new-task`, newItem);
+        await axios.post(`api/todolist/add-new-task`, newItem, {
+            headers: {
+                token: tokenStored,
+            },
+        });
 
         console.log(newItem);
 
@@ -119,35 +132,78 @@ function App() {
         setNewItemTitle('');
     };
 
+    // Login logic
+
+    const loginHandler = async (event) => {
+        event.preventDefault();
+
+        const loginData = {
+            email: newEmail,
+            password: newPassword,
+        };
+
+        const response = await axios.post(`api/todolist/login`, loginData);
+        const token = response.data;
+
+        console.log('token', token);
+
+        tokenStored = token;
+
+        setLogged(true);
+    };
+
     return (
-        <div className="App">
-            <div className="todolist">
-                <form className="addTaskForm">
+        <div className="app">
+            {logged ? (
+                <div className="todolist">
+                    <form className="addTaskForm">
+                        <input
+                            className="input"
+                            value={newItemTitle}
+                            onChange={(event) => {
+                                setNewItemTitle(event.target.value);
+                            }}
+                        ></input>
+
+                        <button type="submit" onClick={addHandler}>
+                            Add
+                        </button>
+                    </form>
+
+                    <ul className="tasks">
+                        {items.map((item) => {
+                            return (
+                                <Item
+                                    key={item._id}
+                                    {...item}
+                                    getItems={getItems}
+                                />
+                            );
+                        })}
+                    </ul>
+                </div>
+            ) : (
+                <form className="loginForm" onSubmit={loginHandler}>
                     <input
-                        className="input"
-                        value={newItemTitle}
                         onChange={(event) => {
-                            setNewItemTitle(event.target.value);
+                            setNewEmail(event.target.value);
                         }}
-                    ></input>
+                        value={newEmail}
+                        type="text"
+                        placeholder="Enter your email..."
+                    />
+                    <input
+                        onChange={(event) => {
+                            setNewPassword(event.target.value);
+                        }}
+                        value={newPassword}
+                        type="password"
+                        placeholder="Enter your password..."
+                    />
 
-                    <button type="submit" onClick={addHandler}>
-                        Add
-                    </button>
+                    <button type="submit">Log in</button>
                 </form>
-
-                <ul className="tasks">
-                    {items.map((item) => {
-                        return (
-                            <Item
-                                key={item._id}
-                                {...item}
-                                getItems={getItems}
-                            />
-                        );
-                    })}
-                </ul>
-            </div>
+            )}
         </div>
     );
 }
