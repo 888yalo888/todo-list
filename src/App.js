@@ -20,7 +20,11 @@ const Item = (props) => {
     const [newTitle, setNewTitle] = useState(title);
 
     const deleteHandler = async () => {
-        await axios.delete(`api/todolist/delete-item/${_id}`);
+        await axios.delete(`api/todolist/delete-item/${_id}`, {
+            headers: {
+                token: sessionStorage.getItem('token'),
+            },
+        });
 
         await getItems();
     };
@@ -31,9 +35,14 @@ const Item = (props) => {
 
     const saveHandler = async (event) => {
         event.preventDefault();
+
         const body = { title: newTitle };
 
-        await axios.put(`api/todolist/change-existing-task/${_id}`, body);
+        await axios.put(`api/todolist/change-existing-task/${_id}`, body, {
+            headers: {
+                token: sessionStorage.getItem('token'),
+            },
+        });
 
         setIsEditable(false);
 
