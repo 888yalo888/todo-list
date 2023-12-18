@@ -8,6 +8,8 @@ import {
     SaveIcon,
 } from './component/icons/icons';
 
+//let tokenStored = null;
+
 // Component
 
 console.log('process.env', process.env, axios.defaults);
@@ -87,33 +89,32 @@ function App() {
     const [newItemTitle, setNewItemTitle] = useState('');
     const [newEmail, setNewEmail] = useState('olga@gmail.com');
     const [newPassword, setNewPassword] = useState('12345');
-    //const [isTasksShowing, showTasks] = useState(false);
     const [user, setUser] = useState();
+
+    // Server request
+    const getItems = useCallback(async () => {
+        const { data: items } = await axios.get(`api/todolist/get-all-items`, {
+            headers: {
+                token: sessionStorage.getItem('token'),
+            },
+        });
+        //const items = response.data;
+
+        setItems(items);
+    }, []);
 
     const getUserHandler = async () => {
         const { data: user } = await axios.get(`api/user`, {
             headers: {
-                token: localStorage.getItem('token'),
+                token: sessionStorage.getItem('token'),
             },
         });
 
         setUser(user);
     };
 
-    // Server request
-    const getItems = useCallback(async () => {
-        const response = await axios.get(`api/todolist/get-all-items`, {
-            headers: {
-                token: localStorage.getItem('token'),
-            },
-        });
-        const items = response.data;
-
-        setItems(items);
-    }, []);
-
     useEffect(() => {
-        if (localStorage.getItem('token')) {
+        if (sessionStorage.getItem('token')) {
             getUserHandler();
 
             getItems();
@@ -133,7 +134,7 @@ function App() {
 
         await axios.post(`api/todolist/add-new-task`, newItem, {
             headers: {
-                token: localStorage.getItem('token'),
+                token: sessionStorage.getItem('token'),
             },
         });
 
@@ -156,12 +157,16 @@ function App() {
             password: newPassword,
         };
 
+        // const response = await axios.post(`api/login`, loginData);
+        // const token = response.data; // response from server with token
+
         const { data: token } = await axios.post(`api/login`, loginData);
-        //const token = response.data; // response from server with token
+
+        sessionStorage.setItem('token', token);
 
         console.log('token', token);
 
-        localStorage.setItem('token', token);
+        //tokenStored = token;
 
         // user data request
 
