@@ -8,8 +8,6 @@ import {
     SaveIcon,
 } from './component/icons/icons';
 
-let tokenStored = null;
-
 // Component
 
 console.log('process.env', process.env, axios.defaults);
@@ -89,24 +87,38 @@ function App() {
     const [newItemTitle, setNewItemTitle] = useState('');
     const [newEmail, setNewEmail] = useState('olga@gmail.com');
     const [newPassword, setNewPassword] = useState('12345');
-    const [logged, setLogged] = useState(false);
+    //const [isTasksShowing, showTasks] = useState(false);
+    const [user, setUser] = useState();
+
+    const getUserHandler = async () => {
+        const { data: user } = await axios.get(`api/user`, {
+            headers: {
+                token: localStorage.getItem('token'),
+            },
+        });
+
+        setUser(user);
+    };
 
     // Server request
     const getItems = useCallback(async () => {
         const response = await axios.get(`api/todolist/get-all-items`, {
             headers: {
-                token: tokenStored,
+                token: localStorage.getItem('token'),
             },
         });
+        const items = response.data;
 
-        setItems(response.data);
+        setItems(items);
     }, []);
 
     useEffect(() => {
-        if (logged) {
+        if (localStorage.getItem('token')) {
+            getUserHandler();
+
             getItems();
         }
-    }, [logged, getItems]);
+    }, []);
 
     //console.log(newItemTitle);
 
@@ -121,7 +133,7 @@ function App() {
 
         await axios.post(`api/todolist/add-new-task`, newItem, {
             headers: {
-                token: tokenStored,
+                token: localStorage.getItem('token'),
             },
         });
 
@@ -134,6 +146,8 @@ function App() {
 
     // Login logic
 
+    // getting a token
+
     const loginHandler = async (event) => {
         event.preventDefault();
 
@@ -142,46 +156,53 @@ function App() {
             password: newPassword,
         };
 
-        const response = await axios.post(`api/todolist/login`, loginData);
-        const token = response.data;
+        const { data: token } = await axios.post(`api/login`, loginData);
+        //const token = response.data; // response from server with token
 
         console.log('token', token);
 
-        tokenStored = token;
+        localStorage.setItem('token', token);
 
-        setLogged(true);
+        // user data request
+
+        getUserHandler();
+
+        getItems();
     };
 
     return (
         <div className="app">
-            {logged ? (
-                <div className="todolist">
-                    <form className="addTaskForm">
-                        <input
-                            className="input"
-                            value={newItemTitle}
-                            onChange={(event) => {
-                                setNewItemTitle(event.target.value);
-                            }}
-                        ></input>
+            {user ? (
+                <>
+                    <div className="userInfo">{user?.email}</div>
+                    <div className="todolist">
+                        <form className="addTaskForm">
+                            <input
+                                className="input"
+                                value={newItemTitle}
+                                onChange={(event) => {
+                                    setNewItemTitle(event.target.value);
+                                }}
+                            ></input>
 
-                        <button type="submit" onClick={addHandler}>
-                            Add
-                        </button>
-                    </form>
+                            <button type="submit" onClick={addHandler}>
+                                Add
+                            </button>
+                        </form>
 
-                    <ul className="tasks">
-                        {items.map((item) => {
-                            return (
-                                <Item
-                                    key={item._id}
-                                    {...item}
-                                    getItems={getItems}
-                                />
-                            );
-                        })}
-                    </ul>
-                </div>
+                        <ul className="tasks">
+                            {items.map((item) => {
+                                return (
+                                    <Item
+                                        key={item._id}
+                                        {...item}
+                                        getItems={getItems}
+                                    />
+                                );
+                            })}
+                        </ul>
+                    </div>
+                </>
             ) : (
                 <form className="loginForm" onSubmit={loginHandler}>
                     <input
