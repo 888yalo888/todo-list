@@ -20,11 +20,7 @@ const Item = (props) => {
     const [newTitle, setNewTitle] = useState(title);
 
     const deleteHandler = async () => {
-        await axios.delete(`api/todolist/delete-item/${_id}`, {
-            headers: {
-                token: sessionStorage.getItem('token'),
-            },
-        });
+        await axios.delete(`api/todolist/delete-item/${_id}`);
 
         await getItems();
     };
@@ -38,11 +34,7 @@ const Item = (props) => {
 
         const body = { title: newTitle };
 
-        await axios.put(`api/todolist/change-existing-task/${_id}`, body, {
-            headers: {
-                token: sessionStorage.getItem('token'),
-            },
-        });
+        await axios.put(`api/todolist/change-existing-task/${_id}`, body);
 
         setIsEditable(false);
 
@@ -98,26 +90,18 @@ function App() {
     const [newItemTitle, setNewItemTitle] = useState('');
     const [newEmail, setNewEmail] = useState('olga@gmail.com');
     const [newPassword, setNewPassword] = useState('12345');
-    const [user, setUser] = useState();
+    const [user, setUser] = useState(null);
 
     // Server request
     const getItems = useCallback(async () => {
-        const { data: items } = await axios.get(`api/todolist/get-all-items`, {
-            headers: {
-                token: sessionStorage.getItem('token'),
-            },
-        });
+        const { data: items } = await axios.get(`api/todolist/get-all-items`);
         //const items = response.data;
 
         setItems(items);
     }, []);
 
     const getUserHandler = async () => {
-        const { data: user } = await axios.get(`api/user`, {
-            headers: {
-                token: sessionStorage.getItem('token'),
-            },
-        });
+        const { data: user } = await axios.get(`api/user`); // destructure from response
 
         setUser(user);
     };
@@ -141,11 +125,7 @@ function App() {
             title: newItemTitle,
         };
 
-        await axios.post(`api/todolist/add-new-task`, newItem, {
-            headers: {
-                token: sessionStorage.getItem('token'),
-            },
-        });
+        await axios.post(`api/todolist/add-new-task`, newItem);
 
         console.log(newItem);
 
@@ -173,6 +153,8 @@ function App() {
 
         sessionStorage.setItem('token', token);
 
+        axios.defaults.headers.token = sessionStorage.getItem('token');
+
         console.log('token', token);
 
         //tokenStored = token;
@@ -184,11 +166,27 @@ function App() {
         getItems();
     };
 
+    //Log out logic
+
+    const logoutHandler = async () => {
+        setUser(null);
+
+        sessionStorage.removeItem('token');
+
+        await axios.delete(`api/logout`);
+    };
+
     return (
         <div className="app">
             {user ? (
                 <>
-                    <div className="userInfo">{user?.email}</div>
+                    <div className="userInfo">
+                        <div className="email">{user?.email}</div>
+                        <button type="submit" onClick={logoutHandler}>
+                            Log out
+                        </button>
+                    </div>
+
                     <div className="todolist">
                         <form className="addTaskForm">
                             <input

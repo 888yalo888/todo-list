@@ -10,6 +10,8 @@ axios.defaults.baseURL =
         ? 'http://localhost:8001'
         : 'https://todolis-back-end-3.onrender.com';
 
+axios.defaults.headers.token = sessionStorage.getItem('token');
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(

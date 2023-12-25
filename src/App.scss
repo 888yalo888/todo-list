@@ -81,6 +81,7 @@ svg {
 
 .app {
     display: flex;
+    flex-direction: column;
 }
 
 .addTaskForm {
@@ -141,4 +142,17 @@ svg {
     margin: auto;
     display: grid;
     grid-gap: 10px;
+}
+
+.userInfo {
+    display: flex;
+    padding-right: 40px;
+    padding-top: 20px;
+    align-self: flex-end;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.email {
+    padding-right: 20px;
 }
