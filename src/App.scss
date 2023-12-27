@@ -137,9 +137,15 @@ svg {
     }
 }
 
-.loginForm {
+.formContainer {
     width: 300px;
     margin: auto;
+    display: grid;
+    grid-gap: 10px;
+}
+
+.loginForm,
+.signupForm {
     display: grid;
     grid-gap: 10px;
 }
@@ -155,4 +161,8 @@ svg {
 
 .email {
     padding-right: 20px;
+}
+
+.or {
+    text-align: center;
 }

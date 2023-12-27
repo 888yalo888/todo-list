@@ -1,6 +1,6 @@
 import axios from 'axios';
 import './App.scss';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import {
     CloseIcon,
     DeleteIcon,
@@ -91,28 +91,32 @@ function App() {
     const [newEmail, setNewEmail] = useState('olga@gmail.com');
     const [newPassword, setNewPassword] = useState('12345');
     const [user, setUser] = useState(null);
+    const [userIsLoading, setUserIsLoading] = useState(false);
 
     // Server request
     const getItems = useCallback(async () => {
-        const { data: items } = await axios.get(`api/todolist/get-all-items`);
+        const { data: items } = await axios.get(`api/todolist/tasks`);
         //const items = response.data;
 
         setItems(items);
     }, []);
 
-    const getUserHandler = async () => {
+    const getUserHandler = useCallback(async () => {
+        setUserIsLoading(true);
+
         const { data: user } = await axios.get(`api/user`); // destructure from response
 
         setUser(user);
-    };
+        setUserIsLoading(false);
+    }, []);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (sessionStorage.getItem('token')) {
             getUserHandler();
 
             getItems();
         }
-    }, []);
+    }, [getItems, getUserHandler]);
 
     //console.log(newItemTitle);
 
@@ -166,6 +170,36 @@ function App() {
         getItems();
     };
 
+    // Sign up logic
+
+    const signupHandler = async (event) => {
+        event.preventDefault();
+
+        const loginData = {
+            email: newEmail,
+            password: newPassword,
+        };
+
+        // const response = await axios.post(`api/login`, loginData);
+        // const token = response.data; // response from server with token
+
+        const { data: token } = await axios.post(`api/signup`, loginData);
+
+        sessionStorage.setItem('token', token);
+
+        axios.defaults.headers.token = sessionStorage.getItem('token');
+
+        console.log('token', token);
+
+        //tokenStored = token;
+
+        // user data request
+
+        getUserHandler();
+
+        getItems();
+    };
+
     //Log out logic
 
     const logoutHandler = async () => {
@@ -175,6 +209,8 @@ function App() {
 
         await axios.delete(`api/logout`);
     };
+
+    if (userIsLoading) return null;
 
     return (
         <div className="app">
@@ -216,26 +252,33 @@ function App() {
                     </div>
                 </>
             ) : (
-                <form className="loginForm" onSubmit={loginHandler}>
-                    <input
-                        onChange={(event) => {
-                            setNewEmail(event.target.value);
-                        }}
-                        value={newEmail}
-                        type="text"
-                        placeholder="Enter your email..."
-                    />
-                    <input
-                        onChange={(event) => {
-                            setNewPassword(event.target.value);
-                        }}
-                        value={newPassword}
-                        type="password"
-                        placeholder="Enter your password..."
-                    />
+                <div className="formContainer">
+                    <form className="loginForm" onSubmit={loginHandler}>
+                        <input
+                            onChange={(event) => {
+                                setNewEmail(event.target.value);
+                            }}
+                            value={newEmail}
+                            type="text"
+                            placeholder="Enter your email..."
+                        />
+                        <input
+                            onChange={(event) => {
+                                setNewPassword(event.target.value);
+                            }}
+                            value={newPassword}
+                            type="password"
+                            placeholder="Enter your password..."
+                        />
 
-                    <button type="submit">Log in</button>
-                </form>
+                        <button type="submit">Log in</button>
+                    </form>
+
+                    <form className="signupForm" onSubmit={signupHandler}>
+                        <div className="or">or</div>
+                        <button type="submit">Sign up</button>
+                    </form>
+                </div>
             )}
         </div>
     );
