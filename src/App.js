@@ -105,7 +105,7 @@ function App() {
     const getUserHandler = useCallback(async () => {
         setUserIsLoading(true);
 
-        const { data: user } = await axios.get(`api/todolist/user`); // destructure from response
+        const { data: user } = await axios.get(`api/user`); // destructure from response
 
         setUser(user);
         setUserIsLoading(false);
