@@ -166,3 +166,13 @@ svg {
 .or {
     text-align: center;
 }
+
+.error {
+    border: 1px solid #dc3545;
+}
+
+.globalError {
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}

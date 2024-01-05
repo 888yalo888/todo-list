@@ -92,6 +92,7 @@ function App() {
     const [newPassword, setNewPassword] = useState('12345');
     const [user, setUser] = useState(null);
     const [userIsLoading, setUserIsLoading] = useState(false);
+    const [errorText, setErrorText] = useState();
 
     // Server request
     const getItems = useCallback(async () => {
@@ -104,21 +105,21 @@ function App() {
     const getUserHandler = useCallback(async () => {
         setUserIsLoading(true);
 
-        const { data: user } = await axios.get(`api/user`); // destructure from response
+        const { data: user } = await axios.get(`api/todolist/user`); // destructure from response
 
         setUser(user);
         setUserIsLoading(false);
     }, []);
 
     useLayoutEffect(() => {
-        if (sessionStorage.getItem('token')) {
+        const token = sessionStorage.getItem('token');
+
+        if (token) {
             getUserHandler();
 
             getItems();
         }
-    }, [getItems, getUserHandler]);
-
-    //console.log(newItemTitle);
+    }, []);
 
     //Handlers
 
@@ -150,24 +151,27 @@ function App() {
             password: newPassword,
         };
 
-        // const response = await axios.post(`api/login`, loginData);
-        // const token = response.data; // response from server with token
+        try {
+            const res = await axios.post('api/login', loginData);
 
-        const { data: token } = await axios.post(`api/login`, loginData);
+            console.log('res.data.token', res.data, res);
 
-        sessionStorage.setItem('token', token);
+            sessionStorage.setItem('token', res.data);
 
-        axios.defaults.headers.token = sessionStorage.getItem('token');
+            axios.defaults.headers.token = res.data;
 
-        console.log('token', token);
+            getUserHandler();
 
-        //tokenStored = token;
+            getItems();
+        } catch (error) {
+            const {
+                response: { data: errorText },
+            } = error;
 
-        // user data request
+            setErrorText(errorText);
 
-        getUserHandler();
-
-        getItems();
+            console.log('error', errorText);
+        }
     };
 
     // Sign up logic
@@ -180,24 +184,45 @@ function App() {
             password: newPassword,
         };
 
-        // const response = await axios.post(`api/login`, loginData);
-        // const token = response.data; // response from server with token
+        // axios
+        //     .post(`api/signup`, loginData)
+        //     .then(({ data: token }) => {
+        //         sessionStorage.setItem('token', token);
 
-        const { data: token } = await axios.post(`api/signup`, loginData);
+        //         axios.defaults.headers.token = sessionStorage.getItem('token');
 
-        sessionStorage.setItem('token', token);
+        //         getUserHandler();
 
-        axios.defaults.headers.token = sessionStorage.getItem('token');
+        //         getItems();
+        //     })
+        //     .catch((error) => {
+        //         console.log('error', error);
+        //     })
+        //     .finally(() => {
+        //         console.log('finally');
+        //     });
 
-        console.log('token', token);
+        try {
+            const { data: token } = await axios.post(`api/signup`, loginData);
 
-        //tokenStored = token;
+            sessionStorage.setItem('token', token);
 
-        // user data request
+            axios.defaults.headers.token = sessionStorage.getItem('token');
 
-        getUserHandler();
+            getUserHandler();
 
-        getItems();
+            getItems();
+        } catch (error) {
+            const {
+                response: { data: errorText },
+            } = error;
+
+            setErrorText(errorText);
+
+            console.log('error', errorText);
+        } finally {
+            console.log('finally');
+        }
     };
 
     //Log out logic
@@ -255,6 +280,7 @@ function App() {
                 <div className="formContainer">
                     <form className="loginForm" onSubmit={loginHandler}>
                         <input
+                            className={errorText ? 'error' : undefined}
                             onChange={(event) => {
                                 setNewEmail(event.target.value);
                             }}
@@ -262,7 +288,9 @@ function App() {
                             type="text"
                             placeholder="Enter your email..."
                         />
+
                         <input
+                            className={errorText ? 'error' : undefined}
                             onChange={(event) => {
                                 setNewPassword(event.target.value);
                             }}
@@ -278,6 +306,10 @@ function App() {
                         <div className="or">or</div>
                         <button type="submit">Sign up</button>
                     </form>
+
+                    {errorText && (
+                        <div className="globalError">{errorText}</div>
+                    )}
                 </div>
             )}
         </div>
