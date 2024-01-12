@@ -4,11 +4,12 @@
 
 This is my first project where I incorporated my knoledge of **front-end** and **back-end** and connected them together.
 
+### Check the demo version: https://todo-list-front-end-yxgf.onrender.com/
+
 <div style="color:#c5f015">This fully functional To-Do App lets you:</div>
 
 -   **_on front-end:_**
 
-    -   go to https://todo-list-front-end-yxgf.onrender.com/
     -   create your own account
     -   create, edit and delete your todos
     -   log-in/log-out
