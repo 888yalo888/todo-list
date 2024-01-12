@@ -160,6 +160,9 @@ function App() {
     const logoutHandler = async () => {
         setUser(null);
 
+        setNewEmail('');
+        setNewPassword('');
+
         sessionStorage.removeItem('token');
 
         await axios.delete(`api/logout`);
