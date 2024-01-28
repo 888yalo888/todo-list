@@ -1,12 +1,7 @@
 import axios from 'axios';
-import './App.scss';
+import './../App.scss';
 import { useState } from 'react';
-import {
-    CloseIcon,
-    DeleteIcon,
-    EditIcon,
-    SaveIcon,
-} from './components/icons/icons';
+import { CloseIcon, DeleteIcon, EditIcon, SaveIcon } from './icons/icons';
 
 const Item = (props) => {
     const { _id, title, getItems } = props;
