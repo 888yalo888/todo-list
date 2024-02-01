@@ -1,52 +1,26 @@
-import axios from 'axios';
-import { useState } from 'react';
+//import axios from 'axios';
+import { useContext, useState } from 'react';
+import AuthContext from './../AuthContext';
 
 //let tokenStored = null;
 // Component
-function LoginAndSignupPage({ onTokenSuccessfullyEquired }) {
+function LoginAndSignupPage() {
+    const auth = useContext(AuthContext);
+
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
-    const [error, setError] = useState();
-
-    const getUserTokenAndSetSession = async (endpoint) => {
-        try {
-            const { data: token } = await axios.post(endpoint, {
-                email,
-                password,
-            });
-
-            sessionStorage.setItem('token', token);
-
-            axios.defaults.headers.token = token;
-
-            onTokenSuccessfullyEquired();
-        } catch (error) {
-            //const { response: { data: errorText }, } = error;
-            const errorText = error.response.data;
-
-            setError(errorText);
-
-            console.log('error', errorText);
-        }
-    };
-
-    const loginHandler = async (event) => {
-        event.preventDefault();
-
-        await getUserTokenAndSetSession('api/login');
-    };
-
-    const signupHandler = async (event) => {
-        event.preventDefault();
-
-        await getUserTokenAndSetSession('api/signup');
-    };
 
     return (
         <div className="formContainer">
-            <form className="loginForm" onSubmit={loginHandler}>
+            <form
+                className="loginForm"
+                onSubmit={(event) => {
+                    event.preventDefault();
+                    auth.loginHandler(email, password);
+                }}
+            >
                 <input
-                    className={error ? 'error' : undefined}
+                    className={auth.error ? 'error' : undefined}
                     onChange={(event) => {
                         setEmail(event.target.value);
                     }}
@@ -56,7 +30,7 @@ function LoginAndSignupPage({ onTokenSuccessfullyEquired }) {
                 />
 
                 <input
-                    className={error ? 'error' : undefined}
+                    className={auth.error ? 'error' : undefined}
                     onChange={(event) => {
                         setPassword(event.target.value);
                     }}
@@ -68,12 +42,18 @@ function LoginAndSignupPage({ onTokenSuccessfullyEquired }) {
                 <button type="submit">Log in</button>
             </form>
 
-            <form className="signupForm" onSubmit={signupHandler}>
+            <form
+                className="signupForm"
+                onSubmit={(event) => {
+                    event.preventDefault();
+                    auth.signupHandler(email, password);
+                }}
+            >
                 <div className="or">or</div>
                 <button type="submit">Sign up</button>
             </form>
 
-            {error && <div className="globalError">{error}</div>}
+            {auth.error && <div className="globalError">{auth.error}</div>}
         </div>
     );
 }

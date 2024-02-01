@@ -1,27 +1,18 @@
 import { Item } from './index';
 import NewTodoItemForm from './NewTodoItemForm';
-import { useEffect, useState } from 'react';
-import { getItems } from '../store/api';
+import { useContext } from 'react';
+import TodoListContext from '../TodoListContext';
 
 function TodoList() {
-    const [items, setItems] = useState([]);
-
-    useEffect(() => {
-        (async () => {
-            const items = await getItems();
-            setItems(items);
-        })();
-    }, []);
+    const todo = useContext(TodoListContext);
 
     return (
         <div className="todolist">
-            <NewTodoItemForm getItems={getItems} />
+            <NewTodoItemForm />
 
             <ul className="tasks">
-                {items.map((item) => {
-                    return (
-                        <Item key={item._id} {...item} getItems={getItems} />
-                    );
+                {todo.items?.map((item) => {
+                    return <Item key={item._id} {...item} />;
                 })}
             </ul>
         </div>

@@ -1,33 +1,17 @@
-import axios from 'axios';
 import './../App.scss';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { CloseIcon, DeleteIcon, EditIcon, SaveIcon } from './icons/icons';
+import { saveItem, deleteItem } from './../store/api';
+import TodoListContext from '../TodoListContext';
 
 const Item = (props) => {
-    const { _id, title, getItems } = props;
+    const todo = useContext(TodoListContext);
+    const { _id, title } = props;
     const [isEditable, setIsEditable] = useState(false);
     const [newTitle, setNewTitle] = useState(title);
 
-    const deleteHandler = async () => {
-        await axios.delete(`api/todolist/delete-item/${_id}`);
-
-        await getItems();
-    };
-
     const editHandler = () => {
         setIsEditable(true);
-    };
-
-    const saveHandler = async (event) => {
-        event.preventDefault();
-
-        const body = { title: newTitle };
-
-        await axios.put(`api/todolist/change-existing-task/${_id}`, body);
-
-        setIsEditable(false);
-
-        await getItems();
     };
 
     const cancelHandler = () => {
@@ -48,7 +32,11 @@ const Item = (props) => {
                     <button
                         className="icon"
                         type="submit"
-                        onClick={saveHandler}
+                        onClick={(event) => {
+                            event.preventDefault();
+                            todo.saveHandler(newTitle, _id);
+                            setIsEditable(false);
+                        }}
                     >
                         <SaveIcon />
                     </button>
@@ -61,7 +49,12 @@ const Item = (props) => {
                 title
             )}
 
-            <button className="icon" onClick={deleteHandler}>
+            <button
+                className="icon"
+                onClick={() => {
+                    todo.deleteHandler(_id);
+                }}
+            >
                 <DeleteIcon />
             </button>
 

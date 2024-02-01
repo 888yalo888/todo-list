@@ -1,17 +1,14 @@
-import axios from 'axios';
+import { useContext } from 'react';
 import './../App.scss';
+//import { deleteTokenAndLogOut } from './../store/api';
+import AuthContext from './../AuthContext';
 
-function Header({ userEmail, onSuccessfulLogout }) {
-    const onLogout = async () => {
-        sessionStorage.removeItem('token');
-
-        await axios.delete(`api/logout`);
-        onSuccessfulLogout();
-    };
+function Header() {
+    const auth = useContext(AuthContext);
     return (
         <div className="userInfo">
-            <div className="email">{userEmail}</div>
-            <button type="submit" onClick={onLogout}>
+            <div className="email">{auth.user.email}</div>
+            <button type="submit" onClick={auth.logout}>
                 Log out
             </button>
         </div>

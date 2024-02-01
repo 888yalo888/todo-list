@@ -1,22 +1,11 @@
-import axios from 'axios';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { addItem } from './../store/api';
+import TodoListContext from '../TodoListContext';
 
-export function NewTodoItemForm({ getItems }) {
+export function NewTodoItemForm({ onItemAdded }) {
+    const todo = useContext(TodoListContext);
+
     const [newItemTitle, setNewItemTitle] = useState();
-
-    const addHandler = async (event) => {
-        event.preventDefault();
-
-        const newItem = {
-            title: newItemTitle,
-        };
-
-        await axios.post(`api/todolist/add-new-task`, newItem);
-
-        setNewItemTitle('');
-
-        getItems();
-    };
 
     return (
         <form className="addTaskForm">
@@ -28,7 +17,14 @@ export function NewTodoItemForm({ getItems }) {
                 }}
             ></input>
 
-            <button type="submit" onClick={addHandler}>
+            <button
+                type="submit"
+                onClick={(event) => {
+                    event.preventDefault();
+                    todo.addHandler(newItemTitle);
+                    setNewItemTitle('');
+                }}
+            >
                 Add
             </button>
         </form>
