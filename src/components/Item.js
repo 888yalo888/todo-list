@@ -34,7 +34,7 @@ const Item = (props) => {
                         type="submit"
                         onClick={(event) => {
                             event.preventDefault();
-                            todo.saveHandler(newTitle, _id);
+                            todo.saveItemsHandler(newTitle, _id);
                             setIsEditable(false);
                         }}
                     >
@@ -52,7 +52,7 @@ const Item = (props) => {
             <button
                 className="icon"
                 onClick={() => {
-                    todo.deleteHandler(_id);
+                    todo.deleteItemsHandler(_id);
                 }}
             >
                 <DeleteIcon />

@@ -1,5 +1,4 @@
 import { useContext, useState } from 'react';
-import { addItem } from './../store/api';
 import TodoListContext from '../TodoListContext';
 
 export function NewTodoItemForm({ onItemAdded }) {
@@ -21,7 +20,7 @@ export function NewTodoItemForm({ onItemAdded }) {
                 type="submit"
                 onClick={(event) => {
                     event.preventDefault();
-                    todo.addHandler(newItemTitle);
+                    todo.addItemsHandler(newItemTitle);
                     setNewItemTitle('');
                 }}
             >

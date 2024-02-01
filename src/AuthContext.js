@@ -89,10 +89,10 @@ export function AuthContextProvider(props) {
             value={{
                 user,
                 userIsLoading,
+                error,
                 loginHandler,
                 logout,
                 signupHandler,
-                error,
             }}
         >
             {props.children}

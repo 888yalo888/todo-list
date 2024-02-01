@@ -1,6 +1,4 @@
-import { createContext, useCallback, useEffect, useState } from 'react';
-import { delay } from './delay';
-import axios from 'axios';
+import { createContext, useEffect, useState } from 'react';
 import { getItems, addItem, deleteItem, saveItem } from './store/api';
 
 const TodoListContext = createContext();
@@ -10,41 +8,41 @@ export function TodoListProvider(props) {
 
     useEffect(() => {
         (async () => {
-            await updateItems();
+            await updateItemsHandler();
         })();
     }, []);
 
-    const updateItems = async () => {
+    const updateItemsHandler = async () => {
         const items = await getItems(); // []
         setItems(items); // []
     };
 
-    const addHandler = async (newItemTitle) => {
+    const addItemsHandler = async (newItemTitle) => {
         await addItem(newItemTitle);
 
-        updateItems();
+        updateItemsHandler();
     };
 
-    const deleteHandler = async (_id) => {
+    const deleteItemsHandler = async (_id) => {
         await deleteItem(_id);
 
-        await updateItems();
+        await updateItemsHandler();
     };
 
-    const saveHandler = async (newTitle, _id) => {
+    const saveItemsHandler = async (newTitle, _id) => {
         await saveItem(newTitle, _id);
 
-        await updateItems();
+        await updateItemsHandler();
     };
 
     return (
         <TodoListContext.Provider
             value={{
-                updateItems,
-                addHandler,
                 items,
-                deleteHandler,
-                saveHandler,
+                updateItemsHandler,
+                addItemsHandler,
+                deleteItemsHandler,
+                saveItemsHandler,
             }}
         >
             {props.children}
