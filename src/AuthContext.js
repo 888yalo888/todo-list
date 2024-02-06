@@ -11,20 +11,17 @@ export function AuthContextProvider(props) {
     const [userIsLoading, setUserIsLoading] = useState(false);
     const [error, setError] = useState();
 
-    const loadUser = useCallback(() => {
+    const loadUser = useCallback(async () => {
         setUserIsLoading(true);
-
-        (async () => {
-            try {
-                await delay(2000);
-                const user = await getUser();
-                setUser(user);
-            } catch (error) {
-                console.log(error);
-            } finally {
-                setUserIsLoading(false);
-            }
-        })();
+        try {
+            await delay(2000);
+            const user = await getUser();
+            setUser(user);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setUserIsLoading(false);
+        }
     }, []);
 
     useEffect(() => {
@@ -34,7 +31,7 @@ export function AuthContextProvider(props) {
         }
     }, []);
 
-    const setSession = async (token) => {
+    const setSession = useCallback(async (token) => {
         try {
             sessionStorage.setItem('token', token);
 
@@ -48,39 +45,39 @@ export function AuthContextProvider(props) {
 
             console.log('error', errorText);
         }
-    };
+    }, []);
 
-    const loginHandler = async (email, password) => {
+    const loginHandler = useCallback(async (email, password) => {
         try {
             const token = await login(email, password);
 
             await setSession(token);
         } catch (error) {
-            const errorText = error.response.data;
+            const errorText = error.response?.data ?? error.message;
 
             setError(errorText);
         }
-    };
+    }, []);
 
-    const signupHandler = async (email, password) => {
+    const signupHandler = useCallback(async (email, password) => {
         try {
             const token = await signup(email, password);
 
             await setSession(token);
         } catch (error) {
-            const errorText = error.response.data;
+            const errorText = error.response?.data ?? error.message;
 
             setError(errorText);
         }
-    };
+    }, []);
 
-    const logout = async () => {
+    const logoutHandler = useCallback(async () => {
         await logOut();
         sessionStorage.removeItem('token');
         axios.defaults.headers.token = null;
 
         setUser(null);
-    };
+    }, []);
 
     if (userIsLoading) return <h1>user is loading</h1>;
 
@@ -91,7 +88,7 @@ export function AuthContextProvider(props) {
                 userIsLoading,
                 error,
                 loginHandler,
-                logout,
+                logoutHandler,
                 signupHandler,
             }}
         >

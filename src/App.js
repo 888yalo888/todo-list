@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import './App.scss';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { LoginAndSignupPage, Header, TodoList } from './components/index';
 import AuthContext from './AuthContext';
 import { TodoListProvider } from './TodoListContext';

@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useEffect, useState } from 'react';
 import { getItems, addItem, deleteItem, saveItem } from './store/api';
 
 const TodoListContext = createContext();
@@ -12,37 +12,36 @@ export function TodoListProvider(props) {
         })();
     }, []);
 
-    const updateItemsHandler = async () => {
+    const updateItemsHandler = useCallback(async () => {
         const items = await getItems(); // []
         setItems(items); // []
-    };
+    }, []);
 
-    const addItemsHandler = async (newItemTitle) => {
-        await addItem(newItemTitle);
+    const addItemHandler = useCallback(async (title) => {
+        await addItem(title);
 
         updateItemsHandler();
-    };
+    }, []);
 
-    const deleteItemsHandler = async (_id) => {
-        await deleteItem(_id);
-
-        await updateItemsHandler();
-    };
-
-    const saveItemsHandler = async (newTitle, _id) => {
-        await saveItem(newTitle, _id);
+    const deleteItemHandler = useCallback(async (id) => {
+        await deleteItem(id);
 
         await updateItemsHandler();
-    };
+    }, []);
+
+    const saveEditedItemHandler = useCallback(async (title, id) => {
+        await saveItem(title, id);
+
+        await updateItemsHandler();
+    }, []);
 
     return (
         <TodoListContext.Provider
             value={{
                 items,
-                updateItemsHandler,
-                addItemsHandler,
-                deleteItemsHandler,
-                saveItemsHandler,
+                addItemHandler,
+                deleteItemHandler,
+                saveEditedItemHandler,
             }}
         >
             {props.children}

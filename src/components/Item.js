@@ -1,8 +1,10 @@
 import './../App.scss';
 import { useContext, useState } from 'react';
 import { CloseIcon, DeleteIcon, EditIcon, SaveIcon } from './icons/icons';
-import { saveItem, deleteItem } from './../store/api';
 import TodoListContext from '../TodoListContext';
+import ListGroup from 'react-bootstrap/ListGroup';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
 const Item = (props) => {
     const todo = useContext(TodoListContext);
@@ -19,49 +21,50 @@ const Item = (props) => {
     };
 
     return (
-        <li className="task">
+        <ListGroup.Item className="task d-flex flex-row justify-content-end border-0">
             {isEditable ? (
-                <form className="editTaskForm">
-                    <input
+                <Form className="editTaskForm d-flex flex-row align-self-start w-100">
+                    <Form.Control
+                        className="title-input w-100"
                         value={newTitle}
                         onChange={(event) => {
                             setNewTitle(event.target.value);
                         }}
-                    ></input>
+                    ></Form.Control>
 
-                    <button
+                    <Button
                         className="icon"
                         type="submit"
                         onClick={(event) => {
                             event.preventDefault();
-                            todo.saveItemsHandler(newTitle, _id);
+                            todo.saveEditedItemHandler(newTitle, _id);
                             setIsEditable(false);
                         }}
                     >
                         <SaveIcon />
-                    </button>
+                    </Button>
 
-                    <button className="icon" onClick={cancelHandler}>
+                    <Button className="icon" onClick={cancelHandler}>
                         <CloseIcon />
-                    </button>
-                </form>
+                    </Button>
+                </Form>
             ) : (
-                title
+                <div className="w-100">{title}</div>
             )}
 
-            <button
+            <Button
                 className="icon"
                 onClick={() => {
-                    todo.deleteItemsHandler(_id);
+                    todo.deleteItemHandler(_id);
                 }}
             >
                 <DeleteIcon />
-            </button>
+            </Button>
 
-            <button className="icon" onClick={editHandler}>
+            <Button className="icon" onClick={editHandler}>
                 <EditIcon />
-            </button>
-        </li>
+            </Button>
+        </ListGroup.Item>
     );
 };
 

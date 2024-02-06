@@ -1,32 +1,35 @@
 import { useContext, useState } from 'react';
 import TodoListContext from '../TodoListContext';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
-export function NewTodoItemForm({ onItemAdded }) {
+export function NewTodoItemForm() {
     const todo = useContext(TodoListContext);
 
     const [newItemTitle, setNewItemTitle] = useState();
 
     return (
-        <form className="addTaskForm">
-            <input
+        <Form className="addTaskForm d-flex flex-row">
+            <Form.Control
                 className="input"
                 value={newItemTitle}
                 onChange={(event) => {
                     setNewItemTitle(event.target.value);
                 }}
-            ></input>
+            ></Form.Control>
 
-            <button
+            <Button
+                className="todo-form-button"
                 type="submit"
                 onClick={(event) => {
                     event.preventDefault();
-                    todo.addItemsHandler(newItemTitle);
+                    todo.addItemHandler(newItemTitle);
                     setNewItemTitle('');
                 }}
             >
                 Add
-            </button>
-        </form>
+            </Button>
+        </Form>
     );
 }
 

@@ -1,19 +1,19 @@
 import axios from 'axios';
 
 export const getItems = async () => {
-    const { data: items } = await axios.get(`api/todolist/tasks`);
+    const { data: items } = await axios.get(`tasks`);
 
     return items;
 };
 
 export const getUser = async () => {
-    const { data: user } = await axios.get(`api/user`); // destructure from response
+    const { data: user } = await axios.get(`/users/current`); // destructure from response
 
     return user;
 };
 
 export const login = async (email, password) => {
-    const { data: token } = await axios.post('api/login', {
+    const { data: token } = await axios.post('auth/login', {
         email,
         password,
     });
@@ -22,7 +22,7 @@ export const login = async (email, password) => {
 };
 
 export const signup = async (email, password) => {
-    const { data: token } = await axios.post('api/signup', {
+    const { data: token } = await axios.post('auth/signup', {
         email,
         password,
     });
@@ -33,19 +33,19 @@ export const addItem = async (newItemTitle) => {
     const newItem = {
         title: newItemTitle,
     };
-    await axios.post(`api/todolist/add-new-task`, newItem);
+    await axios.post(`tasks`, newItem);
 };
 
 export const logOut = async () => {
-    await axios.delete(`api/logout`);
+    await axios.delete(`auth/logout`);
 };
 
 export const saveItem = async (newTitle, _id) => {
     const body = { title: newTitle };
 
-    await axios.put(`api/todolist/change-existing-task/${_id}`, body);
+    await axios.put(`tasks/${_id}`, body);
 };
 
 export const deleteItem = async (_id) => {
-    await axios.delete(`api/todolist/delete-item/${_id}`);
+    await axios.delete(`tasks/${_id}`);
 };
