@@ -21,7 +21,7 @@ const Item = (props) => {
     };
 
     return (
-        <ListGroup.Item className="task d-flex flex-row justify-content-end border-0">
+        <ListGroup.Item className="task d-flex flex-row justify-content-end border-top-0 border-end-0 border-start-0">
             {isEditable ? (
                 <Form className="editTaskForm d-flex flex-row align-self-start w-100">
                     <Form.Control
@@ -33,7 +33,7 @@ const Item = (props) => {
                     ></Form.Control>
 
                     <Button
-                        className="icon"
+                        className="icon btn bg-transparent border-0 "
                         type="submit"
                         onClick={(event) => {
                             event.preventDefault();
@@ -44,16 +44,19 @@ const Item = (props) => {
                         <SaveIcon />
                     </Button>
 
-                    <Button className="icon" onClick={cancelHandler}>
+                    <Button
+                        className="icon btn bg-transparent border-0"
+                        onClick={cancelHandler}
+                    >
                         <CloseIcon />
                     </Button>
                 </Form>
             ) : (
-                <div className="w-100">{title}</div>
+                <div className="title-container w-100">{title}</div>
             )}
 
             <Button
-                className="icon"
+                className="icon btn bg-transparent border-0"
                 onClick={() => {
                     todo.deleteItemHandler(_id);
                 }}
@@ -61,7 +64,10 @@ const Item = (props) => {
                 <DeleteIcon />
             </Button>
 
-            <Button className="icon" onClick={editHandler}>
+            <Button
+                className="icon btn bg-transparent border-0"
+                onClick={editHandler}
+            >
                 <EditIcon />
             </Button>
         </ListGroup.Item>
