@@ -9,7 +9,7 @@ import axios from 'axios';
 axios.defaults.baseURL =
     process.env.NODE_ENV === 'development'
         ? 'http://localhost:8001'
-        : 'https://todolis-back-end-3.onrender.com';
+        : 'https://rest-back-end-zzx5.onrender.com';
 
 axios.defaults.headers.token = sessionStorage.getItem('token');
 
