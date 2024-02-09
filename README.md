@@ -2,7 +2,7 @@
 
 ## A fully functional To-Do App with regestration/varification form so you can create your own account.
 
-This is my first project where I incorporated my knoledge of **front-end** and **back-end** and connected them together.
+This is my first project where I incorporated my knoledge of **front-end** and **RESTful back-end** and connected them together.
 
 ### Check the demo version: https://todo-list-front-end-yxgf.onrender.com/
 
@@ -16,8 +16,9 @@ This is my first project where I incorporated my knoledge of **front-end** and *
 
 -   **_on back-end:_**
 
+    -   link for the back-end code https://github.com/888yalo888/todo-rest-backapp
     -   create this user in the database (I used <span style="color:yellow">Studio 3T as a MongoDB GUI</span>)
-    -   create a token for security that is saved in <span style="color:yellow">Session storage</span> and in the database
+    -   create a token for security that is saved both in <span style="color:yellow">Session storage</span> and in the database
     -   create, edits and deletes tasks from database
         ![database](./database-collection.JPG)
     -   provide log-in/log-out logic
